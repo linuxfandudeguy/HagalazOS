@@ -4,7 +4,7 @@ const soundboardApp = {
     icon: "bi-speaker-fill",
     taskbar: false, // show on taskbar
     title: "Soundboard",
-    htmlPath: `/apps/soundboard.html`,
+    htmlPath: `./apps/soundboard.html`,
     gridX: 2,
     gridY: 1
 };
