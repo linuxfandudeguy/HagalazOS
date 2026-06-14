@@ -5,7 +5,7 @@ const cameraApp = {
     taskbar: true, // show on taskbar
 
     title: "Camera",
-    htmlPath: `/apps/camera.html`
+    htmlPath: `./apps/camera.html`
 };
 
 // Push to Apps array for dynamic loader
