@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>camera</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    display: flex;
+    height: 100vh;
+}
+
+#sidebar {
+    width: 250px;
+    background: #1a1a1a;
+    padding: 10px;
+    box-sizing: border-box;
+    border-right: 2px solid #333;
+}
+
+#main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+video {
+    width: 100%;
+    background: black;
+}
+
+#preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+}
+
+#webcamPreview {
+    position: absolute;
+    width: 180px;
+    bottom: 10px;
+    right: 10px;
+    border: 2px solid #fff;
+}
+
+button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    background: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #555;
+}
+
+.status {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #aaa;
+}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h3>Sources</h3>
+    <button onclick="startScreen()">+ Screen</button>
+    <button onclick="startWebcam()">+ Webcam</button>
+
+    <h3>Recording</h3>
+    <button onclick="startRecording()">● Start</button>
+    <button onclick="stopRecording()">■ Stop</button>
+
+    <div class="status" id="status">Idle</div>
+</div>
+
+<div id="main">
+    <div id="preview">
+        <video id="screenVideo" autoplay playsinline></video>
+        <video id="webcamPreview" autoplay playsinline muted></video>
+    </div>
+</div>
+
+<script>
+let screenStream;
+let webcamStream;
+let mixedStream;
+let recorder;
+let chunks = [];
+
+async function startScreen() {
+    screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+    });
+
+    document.getElementById("screenVideo").srcObject = screenStream;
+    document.getElementById("status").innerText = "Screen added";
+}
+
+async function startWebcam() {
+    webcamStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+    });
+
+    document.getElementById("webcamPreview").srcObject = webcamStream;
+    document.getElementById("status").innerText = "Webcam added";
+}
+
+function buildMixedStream() {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = 1280;
+    canvas.height = 720;
+
+    const screen = document.getElementById("screenVideo");
+    const webcam = document.getElementById("webcamPreview");
+
+    const stream = canvas.captureStream(30);
+
+    function draw() {
+        ctx.drawImage(screen, 0, 0, canvas.width, canvas.height);
+
+        if (webcam.srcObject) {
+            ctx.drawImage(webcam, canvas.width - 250, canvas.height - 200, 200, 150);
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+    return stream;
+}
+
+function startRecording() {
+    if (!screenStream) {
+        alert("Add screen first!");
+        return;
+    }
+
+    mixedStream = buildMixedStream();
+    chunks = [];
+
+    recorder = new MediaRecorder(mixedStream, {
+        mimeType: "video/webm; codecs=vp9"
+    });
+
+    recorder.ondataavailable = e => chunks.push(e.data);
+
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "recording.webm";
+        a.click();
+    };
+
+    recorder.start();
+    document.getElementById("status").innerText = "Recording...";
+}
+
+function stopRecording() {
+    if (recorder) recorder.stop();
+    document.getElementById("status").innerText = "Stopped";
+}
+</script>
+
+</body>
+</html>

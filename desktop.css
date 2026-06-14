@@ -1,0 +1,42 @@
+.desktop-icon {
+    position: relative; /* required for absolute positioning of highlight */
+    width: 80px;
+    display: inline-flex; /* side by side */
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 13px;
+    color: #242323;
+    cursor: pointer;
+    user-select: none;
+}
+
+.desktop-icon i {
+    font-size: 36px; /* icon size */
+    z-index: 1; /* bring icon above highlight */
+}
+
+/* Icon background highlight only behind the icon */
+.desktop-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: 0; /* behind icon */
+}
+
+/* Text below icon, not part of highlight */
+.desktop-icon span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-top: 6px;
+}

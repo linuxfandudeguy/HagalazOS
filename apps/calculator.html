@@ -1,0 +1,58 @@
+<!-- <base href=""> -->
+<link rel="stylesheet" href="../7.css">
+<div style="padding:20px;font-family:Segoe UI,sans-serif;color:#111;max-width:300px;margin:auto;">
+            <h2 style="margin-bottom:15px;text-align:center;">Calculator</h2>
+            
+            <input type="text" id="calcDisplay" style="width:100%;padding:10px;margin-bottom:10px;font-size:18px;text-align:right;" readonly>
+
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:5px;">
+                <button class="calc-btn">7</button>
+                <button class="calc-btn">8</button>
+                <button class="calc-btn">9</button>
+                <button class="calc-btn">/</button>
+
+                <button class="calc-btn">4</button>
+                <button class="calc-btn">5</button>
+                <button class="calc-btn">6</button>
+                <button class="calc-btn">*</button>
+
+                <button class="calc-btn">1</button>
+                <button class="calc-btn">2</button>
+                <button class="calc-btn">3</button>
+                <button class="calc-btn">-</button>
+
+                <button class="calc-btn">0</button>
+                <button class="calc-btn">.</button>
+                <button class="calc-btn">=</button>
+                <button class="calc-btn">+</button>
+
+                <button class="calc-btn" style="grid-column: span 4; background:#f44336;color:white;">C</button>
+            </div>
+        </div>
+
+        <script>
+            (function() {
+                const display = document.getElementById("calcDisplay");
+                let currentInput = "";
+
+                document.querySelectorAll(".calc-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const val = btn.textContent;
+
+                        if (val === "C") {
+                            currentInput = "";
+                        } else if (val === "=") {
+                            try {
+                                currentInput = eval(currentInput).toString();
+                            } catch {
+                                currentInput = "Error";
+                            }
+                        } else {
+                            currentInput += val;
+                        }
+
+                        display.value = currentInput;
+                    });
+                });
+            })();
+        </script>

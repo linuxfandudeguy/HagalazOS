@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>melonsoda</title>
+<script>
+// have a list of cdns on hold
+(async function() {
+  const axiosCDNs = [
+    "https://cdn.jsdelivr.net/npm/axios@1.14.0/dist/axios.min.js",
+    "https://file.garden/ZtNXqbPCZ1cAh6MT/axios.min.js",
+    "https://cdn.jsdelivr.net/gh/linuxfandudeguy/cdn-4xe3@axios/axios.min.js",
+    "https://unpkg.com/axios@1.14.0/dist/axios.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.0/axios.min.js",
+    "https://cdn.skypack.dev/pin/axios@v1.14.0-M6MvqYWpz43BoC8jznR8/mode=imports,min/optimized/axios.js"
+  ];
+
+  async function loadAxios(urls) {
+    for (const url of urls) {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = url;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+        if (window.axios) {
+          console.log("Axios loaded from:", url);
+          return window.axios; // assign to 'a' later
+        }
+      } catch (e) {
+        console.warn("Failed to load Axios from:", url);
+      }
+    }
+    console.warn("Falling back to fetch");
+    return null;
+  }
+
+  const a = await loadAxios(axiosCDNs); // 'a' is Axios or null
+
+  const targetUrl = "https://raw.githubusercontent.com/linuxfandudeguy/melonsoda/refs/heads/main/offline/index.html";
+
+  try {
+    let html;
+    if (a) {
+      const response = await a.get(targetUrl, {
+        responseType: "text",
+        transformResponse: [data => data]
+      });
+      html = response.data;
+    } else {
+      const response = await fetch(targetUrl);
+      html = await response.text();
+    }
+
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (err) {
+    console.error("Update failed:", err);
+    document.body.innerHTML = "<h1>Failed to load update</h1>";
+  }
+})();
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leaflet</title>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+  }
+
+  #map {
+    height: 100%;
+    width: 100%;
+  }
+
+  .tile-selector {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-family: sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="tile-selector">
+  <select id="tileSelect">
+    <option value="osm">OpenStreetMap</option>
+    <option value="dark">Dark Matter</option>
+    <option value="sat">Satellite</option>
+    <option value="topo">Topographic</option>
+  </select>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// --------------------
+// Base map
+// --------------------
+const map = L.map('map').setView([41.505, -81.69], 11);
+
+// --------------------
+// Tile layers
+// --------------------
+const tiles = {
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }),
+
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; CARTO'
+  }),
+
+  sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/' +
+    'World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: '&copy; Esri'
+  }),
+
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: '&copy; OpenTopoMap'
+  })
+};
+
+// default layer
+tiles.osm.addTo(map);
+
+
+const selector = document.getElementById("tileSelect");
+
+selector.addEventListener("change", (e) => {
+  const key = e.target.value;
+
+  // remove all layers
+  Object.values(tiles).forEach(layer => map.removeLayer(layer));
+
+  // add selected
+  tiles[key].addTo(map);
+});
+
+
+L.control.layers(tiles, null, { collapsed: true }).addTo(map);
+
+</script>
+
+</body>
+</html>
