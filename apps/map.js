@@ -5,7 +5,7 @@ const mapApp = {
     taskbar: true, // show on taskbar
 
     title: "Map",
-    htmlPath: `/apps/map.html`,
+    htmlPath: `./apps/map.html`,
     gridX: 0,
     gridY: 1
 };
