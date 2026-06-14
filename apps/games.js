@@ -4,7 +4,7 @@ const gamesApp = {
     taskbar: false, // show on taskbar
 
     title: "Games",
-    htmlPath: `/apps/games.html`,
+    htmlPath: `./apps/games.html`,
     gridX: 0,
     gridY: 2
 };
