@@ -4,7 +4,7 @@ const browserApp = {
     icon: "bi-browser-chrome",
     taskbar: true, // show on taskbar
     title: "Browser",
-    htmlPath: `/apps/clsandstone.html`,
+    htmlPath: `./apps/clsandstone.html`,
     gridX: 1,
     gridY: 1
 };
