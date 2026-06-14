@@ -3,7 +3,7 @@ const musicApp = {
     icon: "bi-music-note",
     taskbar: true, // show on taskbar
     title: "Music",
-    htmlPath: `/apps/espotify.html`
+    htmlPath: `./apps/espotify.html`
 };
 
 // Export for dynamic loader
