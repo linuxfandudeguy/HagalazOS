@@ -5,7 +5,7 @@ const calculatorApp = {
     taskbar: true, // show on taskbar
 
     title: "Calculator",
-    htmlPath: `/apps/calculator.html`
+    htmlPath: `./apps/calculator.html`
 };
 
 // Push to Apps array for dynamic loader
