@@ -26,7 +26,7 @@ function findNextFreeCell() {
 }
 
 // =========================
-// OPEN WINDOW (PATH BASED)
+// OPEN WINDOW
 // =========================
 async function openWindow(id, htmlPath, title, fallbackUrl = null) {
     let win = document.getElementById(id);
@@ -37,6 +37,7 @@ async function openWindow(id, htmlPath, title, fallbackUrl = null) {
             win.style.display = "block";
             delete minimizedWindows[id];
         }
+
         win.style.zIndex = zIndexCounter++;
         return;
     }
@@ -51,6 +52,11 @@ async function openWindow(id, htmlPath, title, fallbackUrl = null) {
     win.style.top = "50px";
     win.style.left = "50px";
     win.style.zIndex = zIndexCounter++;
+
+    // bring to front on interaction
+    win.addEventListener("mousedown", () => {
+        win.style.zIndex = zIndexCounter++;
+    });
 
     win.innerHTML = `
         <div class="window active" style="width:100%;height:100%;">
@@ -70,8 +76,8 @@ async function openWindow(id, htmlPath, title, fallbackUrl = null) {
     `;
 
     document.getElementById("windows").appendChild(win);
-    makeDraggable(win);
 
+    makeDraggable(win);
     await loadAppIntoWindow(win, htmlPath, fallbackUrl);
 }
 
@@ -109,7 +115,7 @@ async function loadAppIntoWindow(win, htmlPath, fallbackUrl) {
 }
 
 // =========================
-// BLOB IFRAME RENDER
+// BLOB IFRAME
 // =========================
 function renderBlobIframe(container, htmlText) {
     const blob = new Blob([htmlText], { type: "text/html" });
@@ -130,7 +136,7 @@ function renderBlobIframe(container, htmlText) {
 }
 
 // =========================
-// DRAG WINDOWS
+// DRAG SYSTEM
 // =========================
 function makeDraggable(wrapper) {
     const bar = wrapper.querySelector(".title-bar");
@@ -161,35 +167,67 @@ function minimizeWindow(id) {
     if (!win) return;
 
     win.style.display = "none";
-    minimizedWindows[id] = win;
+    minimizedWindows[id] = true;
 }
 
 function maximizeWindow(btn) {
     const win = btn.closest(".window-wrapper");
+    if (!win) return;
 
-    if (win.classList.contains("max")) {
+    if (win.dataset.max === "1") {
         win.style.width = "800px";
         win.style.height = "600px";
         win.style.top = "50px";
         win.style.left = "50px";
-        win.classList.remove("max");
+        win.dataset.max = "0";
     } else {
         win.style.top = "0";
         win.style.left = "0";
         win.style.width = "100%";
         win.style.height = "calc(100% - 48px)";
-        win.classList.add("max");
+        win.dataset.max = "1";
     }
+
+    win.style.zIndex = zIndexCounter++;
 }
 
 function closeWindow(btn) {
     const win = btn.closest(".window-wrapper");
-    win.remove();
+    if (!win) return;
+
     delete minimizedWindows[win.id];
+    win.remove();
 }
 
 // =========================
-// BOOT SYSTEM (GRID DESKTOP)
+// ⚡ INSTANT CTRL + X CLOSE (TOP WINDOW)
+// =========================
+document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+
+        const wins = document.querySelectorAll(".window-wrapper");
+        if (!wins.length) return;
+
+        let top = null;
+        let topZ = -Infinity;
+
+        for (const w of wins) {
+            const z = parseInt(w.style.zIndex || "0", 10);
+            if (z >= topZ) {
+                topZ = z;
+                top = w;
+            }
+        }
+
+        if (top) {
+            delete minimizedWindows[top.id];
+            top.remove();
+        }
+    }
+});
+
+// =========================
+// BOOT SYSTEM
 // =========================
 window.onload = () => {
     const desktop = document.getElementById("desktop");
@@ -201,17 +239,15 @@ window.onload = () => {
 
         let x, y;
 
-        if (typeof app.gridX === "number" && typeof app.gridY === "number") {
+        if (typeof app.gridX === "number") {
             x = app.gridX;
             y = app.gridY;
-            occupiedCells.add(cellKey(x, y));
         } else {
             ({ x, y } = findNextFreeCell());
         }
 
         const icon = document.createElement("div");
         icon.className = "desktop-icon";
-        icon.id = `desktop-icon-${app.id}`;
 
         icon.style.position = "absolute";
         icon.style.left = (x * GRID_SIZE) + "px";
@@ -228,15 +264,11 @@ window.onload = () => {
 
         desktop.appendChild(icon);
 
-        // taskbar
         if (app.taskbar) {
             const btn = document.createElement("button");
-
             btn.innerHTML = app.icon?.includes("bi-")
                 ? `<i class="bi ${app.icon}"></i>`
                 : app.icon;
-
-            btn.title = app.title;
 
             btn.onclick = () =>
                 openWindow(app.id, app.htmlPath, app.title, app.fallbackUrl);
