@@ -231,11 +231,11 @@ function openGames(){
 
 function gui(){
     const w = window.open("about:blank");
-    w.document.write("<h2>Launching GUI mode...</h2>");
+    w.document.write("<h2>going to gui mode...</h2>");
 }
 
 async function fgui(){
-    const html = await fetch("https://raw.githubusercontent.com/linuxfandudeguy/HagalazOS/refs/heads/master/singlefile.html")
+    const html = await fetch("https://raw.githubusercontent.com/linuxfandudeguy/HagalazOS/refs/heads/master/ossingle.html")
         .then(r => r.text());
 
     document.open();
