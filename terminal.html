@@ -207,22 +207,30 @@ function neofetch(){
 function openGames(){
     const w = window.open("about:blank");
 
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>games</title></head>
+ const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>games</title>
+</head>
 <body>
+
 <script>
+async function loadMelonSodaGames() {
+  const targetUrl = "https://raw.githubusercontent.com/linuxfandudeguy/melonsoda/main/offline/index.html";
 
-
-  const targetUrl="https://raw.githubusercontent.com/linuxfandudeguy/melonsoda/refs/heads/main/offline/index.html";
-
-  let html = await fetch(targetUrl).then(r=>r.text());
+  const html = await fetch(targetUrl).then(r => r.text());
 
   document.open();
   document.write(html);
   document.close();
-})();
+}
+
+loadMelonSodaGames();
 <\/script>
-</body></html>`;
+
+</body>
+</html>`;
 
     w.document.open();
     w.document.write(html);
