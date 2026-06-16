@@ -1,0 +1,59 @@
+name: Build os singlefile
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate ossingle.html
+        run: |
+          COMMIT_HASH=$(git rev-parse HEAD)
+
+          BASE_TAG="<base href=\"https://cdn.jsdelivr.net/gh/linuxfandudeguy/HagalazOS@${COMMIT_HASH}/\">"
+
+          python << 'EOF'
+          import re
+
+          with open("os.html", "r", encoding="utf-8") as f:
+              html = f.read()
+
+          import os
+          base_tag = os.environ["BASE_TAG"]
+
+          if re.search(r"<head[^>]*>", html, re.IGNORECASE):
+              html = re.sub(
+                  r"(<head[^>]*>)",
+                  r"\1\n" + base_tag,
+                  html,
+                  count=1,
+                  flags=re.IGNORECASE
+              )
+
+          with open("ossingle.html", "w", encoding="utf-8") as f:
+              f.write(html)
+          EOF
+        env:
+          BASE_TAG: ${{ env.BASE_TAG }}
+
+      - name: Commit output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add ossingle.html
+
+          git diff --cached --quiet || git commit -m "Build ossingle.html"
+
+          git push
