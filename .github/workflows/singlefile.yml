@@ -25,11 +25,14 @@ jobs:
 
           python << 'EOF'
           import re
+          import os
 
           with open("index.html", "r", encoding="utf-8") as f:
               html = f.read()
 
-          import os
+          # 🔥 replace os.html -> ossingle.html inside the HTML source
+          html = html.replace("os.html", "ossingle.html")
+
           base_tag = os.environ["BASE_TAG"]
 
           if re.search(r"<head[^>]*>", html, re.IGNORECASE):
