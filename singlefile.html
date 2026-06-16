@@ -1,57 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<base href="https://cdn.jsdelivr.net/gh/linuxfandudeguy/HagalazOS@5997b40e7f5459df5ffd5eec8185c999e7da52cb/">
+<base href="https://cdn.jsdelivr.net/gh/linuxfandudeguy/HagalazOS@7564ea63b0caa76655952c90b25f4757b8406603/">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>hagalazOS</title>
-<!-- this amount of cdns is crazy but idgaf-->
- <link rel="preconnect" href="https://cdn.jsdelivr.net">
- <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/linuxfandudeguy/hagallcdn@main/tumblr_c6c3374236c7bb8b23abf57754ff37d1_770fc080_250.png">
-<link rel="preconnect" href="https://unpkg.com">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="https://unpkg.com/7.css@0.21.1/dist/7.css">
-<link rel="stylesheet" href="./style.css">
-<link rel="stylesheet" href="./desktop.css">
-<style>.desktop-icon {
+<title>DORFic GRUB Chainloader</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: #0b0c0f;
+    color: #d7d7d7;
+    font-family: monospace;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    text-align: center;
-    padding: 6px;
 }
 
-.desktop-icon i {
-    font-size: 28px;
+.screen {
+    width: 520px;
 }
 
-.desktop-icon span {
+.box {
+    border: 1px solid rgba(255,128,0,0.35);
+    padding: 14px;
+}
+
+.option {
+    padding: 6px 10px;
+    margin: 4px 0;
+}
+
+.selected {
+    background: #ff8000;
+    color: #000;
+}
+
+.footer {
+    margin-top: 10px;
+    color: #777;
     font-size: 12px;
-    margin-top: 4px;
-}</style>
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    opacity: 0.25;
+}
+</style>
 </head>
+
 <body>
 
-<div id="desktop"></div>
-<div id="windows"></div>
-<div class="taskbar" id="taskbar"></div>
+<div class="screen">
+    <div class="box">
+        <div id="gui" class="option selected">
+             HagalazOS (GUI)
+        </div>
 
-<script src="./script.js"></script>
-<script src="./dragjs.js"></script>
-<!--<script src="./apps/about.js"></script> -->
-<script src="./apps/browser.js"></script>
-<script src="./apps/music.js"></script>
-<script src="./apps/calculator.js"></script>
-<script src="./apps/camera.js"></script>
-<script src="./apps/soundboard.js"></script>
-<script src="./apps/games.js"></script>
-<script src="./apps/map.js"></script>
+        <div id="term" class="option">
+            HagalazOS (Terminal)
+        </div>
+    </div>
 
+    <div class="footer">
+        ↑ ↓ select • ENTER boot (chainload)
+    </div>
+</div>
 
+<script>
+let index = 0;
 
+const options = [
+    { el: document.getElementById("gui"), url: "/os.html" },
+    { el: document.getElementById("term"), url: "/terminal.html" }
+];
+
+function render() {
+    options.forEach((o, i) => {
+        o.el.classList.toggle("selected", i === index);
+    });
+}
+
+async function boot() {
+    const target = options[index].url;
+
+    try {
+        const res = await fetch(target);
+        const html = await res.text();
+
+        // wipe current document and replace entirely
+        document.open();
+        document.write(html);
+        document.close();
+
+    } catch (err) {
+        document.body.innerHTML = `
+            <pre style="color:#ff8000;">
+LOAD FAILURE
+------------------
+Target: ${target}
+Error: ${err}
+            </pre>
+        `;
+    }
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") index = (index + 1) % options.length;
+    if (e.key === "ArrowUp") index = (index - 1 + options.length) % options.length;
+    if (e.key === "Enter") boot();
+    render();
+});
+
+render();
+</script>
 
 </body>
 </html>
